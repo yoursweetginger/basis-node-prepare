@@ -1,0 +1,8 @@
+galaxy_info:
+  author: "Ilia Shchekin shchekin.ilya@gmail.com"
+  license: "MIT"
+  min_ansible_version: 2.10
+  platforms:
+    - name: Astra Linux
+      versions:
+        - 1.7.8

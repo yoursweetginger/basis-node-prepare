@@ -1,0 +1,122 @@
+# TODO: Add checking if root have had integrity level 63
+- name: Set mandatory integrity level
+  shell: pdpl-user -i 63 root
+  tags:
+    - first-run
+
+- name: Add dns server
+  lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver {{ item }}"
+    create: yes
+  loop: "{{ dns_servers }}"
+
+- name: Ensure a locale exists
+  community.general.locale_gen:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - en_US.UTF-8
+    - ru_RU.UTF-8
+  register: locale_gen_result
+
+- name: Update default locale
+  shell: update-locale LANG=en_US.UTF-8
+  when: locale_gen_result.changed
+
+- name: Change apt repository list
+  copy:
+    dest: /etc/apt/sources.list
+    content: |
+      deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-main/ 1.7_x86-64 main contrib non-free
+      deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-update/ 1.7_x86-64 main contrib non-free
+      deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-base/ 1.7_x86-64 main contrib non-free
+      deb https://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.2/xr/1/repository-extended/ 1.7_x86-64 main contrib non-free
+      deb https://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.2/xr/2/repository-extended/ 1.7_x86-64 main contrib non-free
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install ca-certificates
+  apt:
+    name: ca-certificates
+
+- name: Install xz-utils for apt installing deb
+  apt:
+    name: xz-utils
+
+- name: Install packages
+  apt:
+    name:
+      - telnet
+      - net-tools
+      - inetutils-telnet
+      - rsync
+      - wget
+      - openvswitch-switch
+      - apt-transport-https
+      - curl
+      - libssl1.1
+      - python2.7
+      - bridge-utils
+      - ethtool
+      - bash-completion
+      - ipmitool
+
+- name: Copy and unzip debs archive
+  unarchive:
+    src: "{{ local_debs }}"
+    dest: /tmp/
+  when: local_debs is defined
+
+- name: Find copied deb files
+  find:
+    paths: /tmp/
+    patterns: "*.deb"
+  register: deb_files
+  when: local_debs is defined
+
+- name: Install debs
+  apt:
+    deb: "{{ item.path }}"
+  loop: "{{ deb_files.files }}"
+  when: local_debs is defined
+
+- name: Set DefaultTasksMax
+  lineinfile:
+    path: /etc/systemd/system.conf
+    regexp: "^DefaultTasksMax="
+    line: "DefaultTasksMax=infinity"
+    create: yes
+
+- name: Copy network config templates
+  template:
+    src: "{{ item }}.conf.j2"
+    dest: "/etc/network/interfaces.d/{{ item }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ network.types }}"
+
+- name: Add public ssh key
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ lookup('file', public_key) }}"
+  when: public_key is defined
+
+- name: Set NTP servers in timesyncd
+  lineinfile:
+    path: /etc/systemd/timesyncd.conf
+    insertafter: "[Time]"
+    regexp: "^NTP="
+    line: "NTP={{ ntp_servers }}"
+    create: yes
+    owner: root
+    group: root
+    mode: 0644
+  when: ntp_servers is defined
+  notify: restart systemd-timesyncd

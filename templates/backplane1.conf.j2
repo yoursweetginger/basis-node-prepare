@@ -1,0 +1,11 @@
+auto backplane1
+iface backplane1 inet static
+  address {{ network.backplane1.address }}
+  mtu 9000
+  pre-up ip l set {{ network.interface }} up
+  pre-up ip l set {{ network.interface }} mtu 9000
+  pre-up sysctl -w net.ipv6.conf.{{ network.interface }}.disable_ipv6=1
+  pre-up ovs-vsctl --may-exist add-br backplane1
+  pre-up ovs-vsctl --may-exist add-port backplane1 {{ network.interface }}
+  pre-up ovs-vsctl set port backplane1 tag={{ network.backplane1.vlan }}
+  post-up tc qdisc replace dev backplane1 root fq

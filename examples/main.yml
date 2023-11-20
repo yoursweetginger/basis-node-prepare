@@ -1,0 +1,6 @@
+- hosts: all
+  become: yes
+  vars:
+    local_debs: files/deb/debs.tar
+  roles:
+    - name: roles/basis-node-prepare

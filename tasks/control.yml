@@ -1,0 +1,149 @@
+- name: Install packages for control node
+  apt:
+    name:
+      - docker.io
+      - haproxy
+
+- name: Update alternatives
+  community.general.alternatives:
+    name: "{{ item.name }}"
+    path: "{{ item.path }}"
+  loop:
+    - name: iptables
+      path: /usr/sbin/iptables-legacy
+    - name: ip6tables
+      path: /usr/sbin/ip6tables-legacy
+
+- name: Add iptables rules to table nat -A POSTROUTING -o public -j MASQUERADE
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    out_interface: public
+    jump: MASQUERADE
+  notify:
+    - Save iptables
+    - Restore iptables
+
+- name: Add iptables rules to table filter -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    ctstate:
+      - RELATED
+      - ESTABLISHED
+    jump: ACCEPT
+  notify:
+    - Save iptables
+    - Restore iptables
+
+- name: Add iptables rules to table filter -A OUTPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
+  ansible.builtin.iptables:
+    table: filter
+    chain: OUTPUT
+    ctstate: ESTABLISHED
+    jump: ACCEPT
+  notify:
+    - Save iptables
+    - Restore iptables
+
+- name: Add iptables rules to table filter -A INPUT -i public -p tcp -m multiport --dports 3080,3023,7022,80,443,22 -j ACCEPT
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    in_interface: public
+    protocol: tcp
+    destination_ports:
+      - 3080
+      - 3023
+      - 7022
+      - 80
+      - 443
+      - 22
+    jump: ACCEPT
+  notify:
+    - Save iptables
+    - Restore iptables
+
+- name: Add iptables rules to table filter -A INPUT -i public -j REJECT --reject-with icmp-port-unreachable
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    in_interface: public
+    jump: REJECT
+    reject_with: icmp-port-unreachable
+  notify:
+    - Save iptables
+    - Restore iptables
+
+- name: Add iptables rules to table filter -A FORWARD -i mgmt -o public -m state --state RELATED,ESTABLISHED -j ACCEPT
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    in_interface: mgmt
+    out_interface: public
+    ctstate: RELATED,ESTABLISHED
+    jump: ACCEPT
+  notify:
+    - Save iptables
+    - Restore iptables
+
+- name: Add iptables rules to table filter -A FORWARD -i public -o mgmt -j ACCEPT
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    in_interface: public
+    out_interface: mgmt
+    jump: ACCEPT
+  notify:
+    - Save iptables
+    - Restore iptables
+
+- name: Add iptables rules to table filter -A FORWARD -j ACCEPT
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    jump: ACCEPT
+  notify:
+    - Save iptables
+    - Restore iptables
+
+- name: Create iptables script file in /etc/network/if-post-down.d
+  copy:
+    dest: /etc/network/if-post-down.d/iptables
+    content: |
+      #!/bin/sh
+      touch /etc/iptables.rules
+      chmod 640 /etc/iptables.rules
+      iptables-save > /etc/iptables.rules
+      exit 0
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create iptables script file in /etc/network/if-pre-up.d
+  copy:
+    dest: /etc/network/if-pre-up.d/iptables
+    content: |
+      #!/bin/sh
+      iptables-restore < /etc/iptables.rules
+      exit 0
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create docker folder
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Setup docker registry
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "insecure-registries" : ["{{ docker_registry }}"]
+      }
+  notify: restart docker

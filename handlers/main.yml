@@ -1,0 +1,19 @@
+- name: restart systemd-timesyncd
+  systemd:
+    name: systemd-timesyncd
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+
+- name: Save iptables
+  shell: bash /etc/network/if-post-down.d/iptables
+
+- name: Restore iptables
+  shell: bash /etc/network/if-pre-up.d/iptables
+
+- name: restart docker
+  systemd:
+    name: docker
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

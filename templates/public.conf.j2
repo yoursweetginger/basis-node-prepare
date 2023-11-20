@@ -1,0 +1,9 @@
+auto public
+iface public inet static
+    address {{ network.public.address }}
+    gateway {{ network.public.gateway }}
+    mtu 1500
+    pre-up ovs-vsctl --may-exist add-br backplane1
+    pre-up ovs-vsctl --may-exist add-port backplane1 public -- set Interface public type=internal
+    pre-up ovs-vsctl set port public tag={{ network.public.vlan }}
+    pre-up ip l set public up

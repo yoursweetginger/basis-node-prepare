@@ -1,0 +1,8 @@
+# You should set role variable in inventory file for each node or group 
+# Role can be 'control' or 'cpu' or 'des'
+- name: Common nodes setup
+  import_tasks: common.yml
+
+- name: Role-specified node setup
+  include_tasks: "{{ role }}.yml"
+  when: role is defined

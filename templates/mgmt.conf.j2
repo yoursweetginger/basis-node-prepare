@@ -1,0 +1,9 @@
+auto mgmt
+iface mgmt inet static
+  address {{ network.mgmt.address }}
+  post-up tc qdisc replace dev mgmt root fq
+  pre-up ovs-vsctl --may-exist add-br backplane1
+  pre-up ovs-vsctl --may-exist add-port backplane1 mgmt -- set Interface mgmt type=internal
+  pre-up ip l set mgmt up
+  pre-up ovs-vsctl set port mgmt tag={{ network.mgmt.vlan }}
+  post-up ip link set dev mgmt mtu 1500

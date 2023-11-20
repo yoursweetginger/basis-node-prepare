@@ -1,0 +1,15 @@
+dns_servers: ['77.88.8.8', '77.88.8.1']
+
+# ntp servers should be listed over space
+ntp_servers: "ntp1.yandex.net ntp2.vniiftri.ru ntp.ix.ru"
+
+docker_registry: registry-1:5000
+
+# Set this variable to populate public key to nodes
+# public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+# local_debs: files/debs.tar
+
+# Network variable should be set in inventory file for each node
+# network:
+#   types: ['backplane1', 'mgmt', 'storage']

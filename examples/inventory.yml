@@ -1,0 +1,172 @@
+all:
+  children:
+    control:
+      hosts:
+        dx-ctrl-01:
+          ansible_host: 1.1.1.45
+          role: control
+          network:
+            types:
+              - backplane1
+              - mgmt
+              - public
+              - storage
+            interface: eth0
+            backplane1:
+              address: 10.0.3.1/24
+              vlan: 1003
+            mgmt:
+              address: 10.0.4.1/24
+              vlan: 1004
+            storage:
+              address: 10.0.7.1/24
+              vlan: 1007
+            public:
+              address: 1.1.1.45/29
+              gateway: 1.1.1.41
+              vlan: 1002
+        dx-ctrl-02:
+          ansible_host: 1.1.1.46
+          role: control
+          network:
+            types:
+              - backplane1
+              - mgmt
+              - public
+              - storage
+            interface: eth0
+            backplane1:
+              address: 10.0.3.2/24
+              vlan: 1003
+            mgmt:
+              address: 10.0.4.2/24
+              vlan: 1004
+            storage:
+              address: 10.0.7.2/24
+              vlan: 1007
+            public:
+              address: 1.1.1.46/29
+              gateway: 1.1.1.41
+              vlan: 1002
+        dx-ctrl-03:
+          ansible_host: 1.1.1.44
+          role: control
+          network:
+            types:
+              - backplane1
+              - mgmt
+              - public
+              - storage
+            interface: eth0
+            backplane1:
+              address: 10.0.3.3/24
+              vlan: 1003
+            mgmt:
+              address: 10.0.4.3/24
+              vlan: 1004
+            storage:
+              address: 10.0.7.3/24
+              vlan: 1007
+            public:
+              address: 1.1.1.44/29
+              gateway: 1.1.1.41
+              vlan: 1002
+    cpu:
+      hosts:
+        dx-cpu-01:
+          ansible_host: 10.0.4.4
+          ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q dx-ctrl-01"'
+          role: cpu
+          network:
+            types:
+              - backplane1
+              - mgmt
+              - storage
+            interface: eth2
+            backplane1:
+              address: 10.0.3.4/24
+              vlan: 1003
+            mgmt:
+              address: 10.0.4.4/24
+              vlan: 1004
+            storage:
+              address: 10.0.7.4/24
+              vlan: 1007
+        dx-cpu-02:
+          ansible_host: 10.0.4.5
+          ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q dx-ctrl-01"'
+          role: cpu
+          network:
+            types:
+              - backplane1
+              - mgmt
+              - storage
+            interface: eth2
+            backplane1:
+              address: 10.0.3.5/24
+              vlan: 1003
+            mgmt:
+              address: 10.0.4.5/24
+              vlan: 1004
+            storage:
+              address: 10.0.7.5/24
+              vlan: 1007
+    des:
+      hosts:
+        dx-des-01:
+          ansible_host: 10.0.4.6
+          ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q dx-ctrl-01"'
+          role: des
+          network:
+            types:
+              - backplane1
+              - mgmt
+              - storage
+            interface: eth2
+            backplane1:
+              address: 10.0.3.6/24
+              vlan: 1003
+            mgmt:
+              address: 10.0.4.6/24
+              vlan: 1004
+            storage:
+              address: 10.0.7.6/24
+              vlan: 1007
+        dx-des-02:
+          ansible_host: 10.0.4.7
+          ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q dx-ctrl-01"'
+          role: des
+          network:
+            types:
+              - backplane1
+              - mgmt
+              - storage
+            interface: eth2
+            backplane1:
+              address: 10.0.3.7/24
+              vlan: 1003
+            mgmt:
+              address: 10.0.4.7/24
+              vlan: 1004
+            storage:
+              address: 10.0.7.7/24
+              vlan: 1007
+        dx-des-03:
+          ansible_host: 10.0.4.8
+          ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q dx-ctrl-01"'
+          role: des
+          network:
+            types:
+              - backplane1
+              - mgmt
+              - storage
+            interface: eth2
+            backplane1:
+              address: 10.0.3.8/24
+              vlan: 1003
+            mgmt:
+              address: 10.0.4.8/24
+              vlan: 1004
+            storage:
+              address: 10.0.7.8/24
+              vlan: 1007

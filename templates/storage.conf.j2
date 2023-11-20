@@ -1,0 +1,9 @@
+auto storage
+iface storage inet static
+  address {{ network.storage.address }}
+  post-up tc qdisc replace dev storage root fq
+  pre-up ovs-vsctl --may-exist add-br backplane1
+  pre-up ovs-vsctl --may-exist add-port backplane1 storage -- set Interface storage type=internal
+  pre-up ip l set storage up
+  pre-up ovs-vsctl set port storage tag={{ network.storage.vlan }}
+  post-up ip link set dev storage mtu 9000

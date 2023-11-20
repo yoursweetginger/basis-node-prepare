@@ -1,0 +1,23 @@
+- name: Install packages for cpu node
+  apt:
+    name:
+      - qemu-system-x86
+      - qemu-utils
+      - qemu-kvm
+      - qemu-user-binfmt
+      - libvirt-clients
+      - libvirtdaemon
+      - libvirt-daemon-system
+      - virtinst
+      - python-pexpect
+      - ovmf
+      - openvswitch-common
+      - genisoimage
+      - runc
+      - open-iscsi
+      - multipath-tools
+      - lvm2-lockd
+      - sanlock
+      - redis-server
+      - libmhash2
+      - python-libvirt
