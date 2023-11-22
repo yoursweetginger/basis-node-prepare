@@ -6,7 +6,7 @@
       - qemu-kvm
       - qemu-user-binfmt
       - libvirt-clients
-      - libvirtdaemon
+      - libvirt-daemon
       - libvirt-daemon-system
       - virtinst
       - python-pexpect
