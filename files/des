@@ -1,0 +1,3 @@
+Package: *
+Pin: release a=des-dev
+Pin-Priority: 1000

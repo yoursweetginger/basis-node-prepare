@@ -1,0 +1,69 @@
+# These tasks not tested yet
+
+- name: Install parted
+  apt:
+    name:
+      - parted
+
+- name: Create partitions
+  parted:
+    device: "{{ item.device }}"
+    number: "{{ item.number }}"
+    label: gpt
+    state: present
+    part_start: "{{ item.part_start }}"
+    part_end: "{{ item.part_end }}"
+  loop:
+    - device: /dev/nvme0n1
+      number: 1
+      part_start: 0%
+      part_end: 80%
+    - number: 2
+      part_start: 80%
+      part_end: 100%
+    - device: /dev/nvme1n1
+      number: 1
+      part_start: 0%
+      part_end: 80%
+    - number: 2
+      part_start: 80%
+      part_end: 100%
+
+- name: Create filesystems
+  filesystem:
+    fstype: ext4
+    dev: "{{ item.dev }}"
+  loop:
+    - device: /dev/nvme0n1p1
+    - device: /dev/nvme0n1p2
+    - device: /dev/nvme1n1p1
+    - device: /dev/nvme1n1p2
+
+- name: Create mount points
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - path: /mnt/ssd1
+    - path: /mnt/ssd2
+    - path: /mnt/ssd3
+    - path: /mnt/ssd4
+
+- name: Make persistant mount filesystems
+  mount:
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    fstype: ext4
+    state: mounted
+  loop:
+    - path: /mnt/ssd1
+      src: /dev/nvme0n1p1
+    - path: /mnt/ssd2
+      src: /dev/nvme0n1p2
+    - path: /mnt/ssd3
+      src: /dev/nvme1n1p1
+    - path: /mnt/ssd4
+      src: /dev/nvme1n1p2

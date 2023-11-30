@@ -5,6 +5,8 @@ ntp_servers: "ntp1.yandex.net ntp2.vniiftri.ru ntp.ix.ru"
 
 docker_registry: registry-1:5000
 
+bond: true
+
 # Set this variable to populate public key to nodes
 # public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
@@ -13,3 +15,47 @@ docker_registry: registry-1:5000
 # Network variable should be set in inventory file for each node
 # network:
 #   types: ['backplane1', 'mgmt', 'storage']
+
+source_list: |
+  deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-main/ 1.7_x86-64 main contrib non-free
+  deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-update/ 1.7_x86-64 main contrib non-free
+  deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-base/ 1.7_x86-64 main contrib non-free
+  deb https://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.2/xr/1/repository-extended/ 1.7_x86-64 main contrib non-free
+  deb https://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.2/xr/2/repository-extended/ 1.7_x86-64 main contrib non-free
+
+# source_list: |
+#   deb http://{{ hostvars[groups['master_control'][0]]['network']['mgmt']['address'] | ansible.utils.ipaddr('address') }}:2080/repo/alse/astra/1.7_x86-64/ 1.7_x86-64 testing
+#   deb http://{{ hostvars[groups['master_control'][0]]['network']['mgmt']['address'] | ansible.utils.ipaddr('address') }}:2080/repo/alse/update-main/ stable main contrib non-free
+#   deb http://{{ hostvars[groups['master_control'][0]]['network']['mgmt']['address'] | ansible.utils.ipaddr('address') }}:2080/repo/alse/update-base/ stable main contrib non-free
+#   deb http://{{ hostvars[groups['master_control'][0]]['network']['mgmt']['address'] | ansible.utils.ipaddr('address') }}:2080/repo/alse/extended/ 1.7_x86-64 main contrib non-free
+
+repo_key: |
+  -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+  mQINBGILEScBEADS/4wTmJANN6G1UxjgjpPrFS4/uxVdZ9PCOHDZMX+QBa+oR+wB
+  f8N3HnHz22SvLg8hkTY17/dgiu+p0jSFpmw3Qt88FqIuFi5ddS3CnK6/96tYreKD
+  XPr0eyBTd2VCNCVW/rT7RBjXP3lJ9uPdMGCO5/dzvJztvryJwE8TfFCH3mq6bMHr
+  USg8+ezQtwetwAzzTra5l5vZP2VZBqcu96f/Ild4yciO/YDI9Fe43VobQ/WJFLeE
+  CRbXODe+M/ByW4nUVJ6Xvdx+AjjgTP92+9K2rtBOFeSLI6ttf53BXZOUHP1lB1tB
+  PADprwlLAcfxu7mUmJuTKRuQKcxIAKLzLJ0QPRjufEmcmTJc+3R1I8KXxb1J6tvQ
+  0D9PT1Ee01lh4h31NZ2h8jNV8Jr0UoSKZf+geTfitKqOTaayug2QFc4n30MsJDVt
+  1xf+foxIdJ9mKJOoMI4EZfyjIWHvn+WboizUoP6ShuD/ykYNotrYp+Io7dACAHD/
+  cXrT0lyejzLFyrFuNFBzz6TCGYtn//fewxXfyQ/bjhVGhTHspcLSbcrf7zrCuNxj
+  mZmRAWqi/2PCnm7tj/sDODVKgR16wWGpHKjbU+LYIZL12gxtebKxIswZB0pzI5Is
+  Wfinz5Dl5gNms1TWxsio/bKxYQbr/rJpnpTUJ7ZlKerlPI/M+rTj2B3mowARAQAB
+  tDFLaXJpbGwgVHN2ZXRrb3YgPGt2dHN2ZXRrb3ZAZGlnaXRhbGVuZXJneS5vbmxp
+  bmU+iQJOBBMBCgA4FiEE7xP7GXZWBGR0sCxCUVOiixlN9kEFAmILEScCGwMFCwkI
+  BwIGFQoJCAsCBBYCAwECHgECF4AACgkQUVOiixlN9kHCERAAs0bMJHGtkDmUPki4
+  NtL45it5UP/dsSLhkjKw4BLxmbR3mck5nc/pWeQoZjxd4lbpWrBogkJreNzm66tN
+  8W53f396B++sh1mxnIkQ7pBFU7vZ1bsAyiqzMY+YjtJ/PpiHjiM1qRfkJd/rQ/g2
+  RFH9CdBx2vT5GHdzmb2nm7yfibM16JMF7E4sYvS6/0RWpjG+wmBbjlFsdWq+qh7M
+  Wmb2DwD/WHmjHdphuNB4WlxDkEpL7oWfjhjU92rFT4CY4/HOo6QDmdkNqZRuqRXK
+  kRYZmG+MI3F+mSkoARk7OXrVNa/tbLuAOqXHmVSm4aAvrF6MXWa9M757uAU89tDk
+  NL4fU2tWvdwcGyf8U2PC8hN7KkilNDOcvugiImkTSB/u8RakPIkl0PQHhm4xgbL+
+  aOevpjenonsq1UG5BzG9KoSg2A0oalEDSMZLPqhHSWGX6HURaRRc+x5SjouLlQTT
+  HC/FGWiL/ULMU9TAh/HK/xsGGilInoydwbTCV48bZjh1XAOVQhCzJXii2J++pDOH
+  NWMAzCB6vVFEe0DlJ00VQPMDf/TOisxB6kqybqVQojo/OYumnZ7hAuovPhlGpPDe
+  lGiAtKTu/wgpCmy+o8g2f4xz9Xhs8DsdOGMAGysb5+KoiSYmrximRIvsSP/Hu1PM
+  /JvvZzBlS2kd+o4/jRTAmEO8w8M=
+  =i9UI
+  -----END PGP PUBLIC KEY BLOCK-----

@@ -27,19 +27,33 @@
 - name: Change apt repository list
   copy:
     dest: /etc/apt/sources.list
-    content: |
-      deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-main/ 1.7_x86-64 main contrib non-free
-      deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-update/ 1.7_x86-64 main contrib non-free
-      deb http://download.astralinux.ru/astra/stable/1.7_x86-64/repository-base/ 1.7_x86-64 main contrib non-free
-      deb https://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.2/xr/1/repository-extended/ 1.7_x86-64 main contrib non-free
-      deb https://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.2/xr/2/repository-extended/ 1.7_x86-64 main contrib non-free
+    content: "{{ source_list }}"
     owner: root
     group: root
     mode: 0644
+  tags:
+    - apt_repository
+
+- name: Set priority for des repository
+  copy:
+    src: des
+    dest: /etc/apt/preferences.d/des
+  tags:
+    - apt_repository
+
+- name: Copy repo key
+  apt_key:
+    data: "{{ repo_key }}"
+  when: repo_key is defined
+  tags:
+    - apt_repository
 
 - name: Update apt cache
   apt:
     update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - apt_repository
 
 - name: Install ca-certificates
   apt:
@@ -101,6 +115,8 @@
     group: root
     mode: 0644
   loop: "{{ network.types }}"
+  tags:
+    - network
 
 - name: Add public ssh key
   ansible.posix.authorized_key:
